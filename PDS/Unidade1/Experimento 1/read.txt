@@ -1,0 +1,7 @@
+O arquivo conv_signal.wav é o arquivo de da convolução, feita com o sinal da minha_voz.wav com a frase: "Alo".
+
+ 
+minha_voz.wav é o arquivo de voz com a frase: "Alô"
+
+
+church Schellingwoude.wav é o arquivo .wav referente ao som da igreja
