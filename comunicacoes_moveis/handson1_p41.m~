@@ -67,15 +67,13 @@ for iFc = 1:length(vtFc)
         %%disp(['Frequência da portadora = ' num2str(dFc)]);
         %%disp(['Taxa de outage = ' num2str(dOutRate) ' %']);
     end
-end
-if dMPg == 1
-   disp(['[HANDS-ON 1] Modelo de Propagação: Okumura-Hata'])
-   disp(['[HANDS-ON 1] Frequência da portadora: ' num2str(dFc) ' MHz'])
-   disp(['[HANDS-ON 1] Taxa de outage: ' num2str(dOutRate) ' %']);
-   disp(['[HANDS-ON 1] Raio do hexágono: ' num2str(dR/1000) ' KM'])
-elseif dMPg == 2            
-   disp(['[HANDS-ON 1] Modelo de Propagação: COST 231'])
-   disp(['[HANDS-ON 1] Frequência da portadora: ' num2str(dFc) ' MHz'])
-   disp(['[HANDS-ON 1] Taxa de outage: ' num2str(dOutRate) ' %']);
-   disp(['[HANDS-ON 1] Raio do hexágono: ' num2str(dR/1000) ' KM'])
+    if dMPg == 1
+       disp(['[HANDS-ON 1] Modelo de Propagação: Okumura-Hata'])
+       disp(['[HAND-ON 1] Frequência da portadora: ' num2str(dFc)])
+       disp(['[HAND-ON 1] Taxa de outage = ' num2str(dOutRate) ' %']);
+       disp(['[HAND-ON 1] Raio do hexágono = Okumura-Hata'])
+    elseif dMPg == 2            
+        disp(['[HANDS-ON 1] Modelo de Propagação: Okumura-Hata'])
+    end
+    
 end
