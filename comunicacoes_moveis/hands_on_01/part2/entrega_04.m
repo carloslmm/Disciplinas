@@ -28,7 +28,6 @@ dDimX = ceil(dDimX+mod(dDimX,dPasso));                      % Ajuste de dimensã
 % Iniciação da Matriz de com a pontência de recebida máxima em cada ponto
 % medido. Essa potência é a maior entre as 7 ERBs.
 mtPowerFinaldBm = -inf*ones(size(mtPosy));
-mtPowerFinalShaddBm = -inf*ones(size(mtPosy));
 % Calcular O REM de cada ERB e aculumar a maior potência em cada ponto de medição
 for iBsD = 1 : length(vtBs)                                 % Loop nas 7 ERBs
     % Matriz 3D com os pontos de medição de cada ERB. Os pontos são
@@ -38,18 +37,36 @@ for iBsD = 1 : length(vtBs)                                 % Loop nas 7 ERBs
     mtDistEachBs(mtDistEachBs < dRMin) = dRMin;             % Implementação do raio de segurança
     % Okumura-Hata (cidade urbana) - dB
     mtPldB = 69.55 + 26.16*log10(dFc) + (44.9 - 6.55*log10(dHBs))*log10(mtDistEachBs/1e3) - 13.82*log10(dHBs) - dAhm;
-    % Shadowing independente em cada ponto
-    mtShadowing = dSigmaShad*randn(size(mtPosy));
     % Potências recebidas em cada ponto de medição sem shadowing
-    mtPowerEachBSdBm = dPtdBm - mtPldB;           
-    % Potências recebidas em cada ponto de medição com shadowing
-    mtPowerEachBSShaddBm = dPtdBm - mtPldB + mtShadowing;           
+    mtPowerEachBSdBm = dPtdBm - mtPldB;                   
     % Cálulo da maior potência em cada ponto de medição sem shadowing
     mtPowerFinaldBm = max(mtPowerFinaldBm,mtPowerEachBSdBm);
-    % Cálulo da maior potência em cada ponto de medição com shadowing
-    mtPowerFinalShaddBm = max(mtPowerFinalShaddBm,mtPowerEachBSShaddBm);
+    
 end
-% Plot da REM de todo o grid (composição das 7 ERBs) sem shadowing
+
+m_size = size(mtPowerFinaldBm);
+mtOut = [];             % Matriz para área de Outage
+
+for i = 1:m_size(1)
+    for j = 1:m_size(2)
+        if mtPowerFinaldBm(i,j) > dPtdBm
+            mtOut(i,j) = 100; 
+        else
+            mtOut(i,j) = -100;
+        end
+    end
+end
+
+%Plot da REM de todo o grid (composição das 7 ERBs) sem shadowing
+figure;
+pcolor(mtPosx,mtPosy,mtOut);
+colormap(autumn);
+colorbar;
+fDrawDeploy(dR,vtBs);
+axis equal;
+title(['Teste']);
+%{ 
+%Plot da REM de todo o grid (composição das 7 ERBs) sem shadowing
 figure;
 pcolor(mtPosx,mtPosy,mtPowerFinaldBm);
 colormap(hsv);
@@ -66,3 +83,4 @@ colorbar;
 fDrawDeploy(dR,vtBs);
 axis equal;
 title(['Todas as 7 ERB com shadowing']);
+%}
