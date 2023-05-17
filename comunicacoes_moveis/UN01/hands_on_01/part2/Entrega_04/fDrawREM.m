@@ -2,7 +2,7 @@ function fDrawREM(dFc, dR, scenario)
     % Entrada de parâmetros
     dSigmaShad = 8;                                            % Desvio padrão do sombreamento lognormal
     % Cálculos de outras variáveis que dependem dos parâmetros de entrada
-    dPasso = ceil(dR/20);                                      % Resolução do grid: distância entre pontos de medição
+    dPasso = ceil(dR/50);                                      % Resolução do grid: distância entre pontos de medição
     dRMin = dPasso;                                            % Raio de segurança
     dIntersiteDistance = 2*sqrt(3/4)*dR;                       % Distância entre ERBs (somente para informação)
     dDimX = 5*dR;                                              % Dimensão X do grid
@@ -84,20 +84,33 @@ function fDrawREM(dFc, dR, scenario)
     end
     if scenario == 0
         %Plot da REM de todo o grid (composição das 7 ERBs) sem shadowing
+        mtPowerFinaldBm(mtPowerFinaldBm<-90) = -100;
+        mtPowerFinaldBm(mtPowerFinaldBm>=-90) = 100;
+        dOutRate = (numel(mtPowerFinaldBm(mtPowerFinaldBm == -100))/numel(mtPowerFinaldBm))*100;
         figure;
         pcolor(mtPosx,mtPosy,mtOut);
         colormap(autumn);
         colorbar;
         fDrawDeploy(dR,vtBsMacro);
         axis equal;
+        disp(['-------------------------------------']);
+        disp(['Frequência: ', num2str(dFc), ' MHz']);
+        disp(['Macrocélula: Outage = ', num2str(dOutRate), ' %']);
         title(['Macrocélula para frequência de ' num2str(dFc) 'MHz']);
     elseif scenario == 1
+        mtPowerFinaldBm(mtPowerFinaldBm<-90) = -100;
+        mtPowerFinaldBm(mtPowerFinaldBm>=-90) = 100;
+        dOutRate = (numel(mtPowerFinaldBm(mtPowerFinaldBm == -100))/numel(mtPowerFinaldBm))*100;
         %Plot da REM de todo o grid (composição das 7 ERBs) sem shadowing
         figure;
         pcolor(mtPosx,mtPosy,mtOut);
         colormap(autumn);
         fDrawDeploy(dR,vtBsMacro);
         axis equal;
+        disp(['-------------------------------------']);
+        disp(['Frequência: ', num2str(dFc), 'MHz']);
+        disp(['Macrocélula e Microcélula: Outage = ', num2str(dOutRate), ' %']);
         title(['Macrocélulas e microcélulas para frequência de ' num2str(dFc) 'MHz']);
     end
+    
 end

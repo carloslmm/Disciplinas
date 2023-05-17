@@ -1,0 +1,37 @@
+fPlot01_01(5) % Chamando a função para gerar os gráficos: potência recebida completa (sujeita ao desvanecimento de larga e pequena escalas) vs distância; potência recebida somente sujeita ao path loss estimado vs distância; potência recebida somente sujeita ao path loss e ao sombreamento estimados vs distância
+
+vtW=[2, 5, 10];
+
+for i = 1:length(vtW)
+    
+    [stdShad, meanShad, coefR, EnvNorm] = fParameters01_02(vtW(i));
+    if i == 1
+        disp(['Entrega 1.2                                        ']);
+        disp(['|Janela | Desvio padrão do sombreamento estimado | Média do sombreamento estimado | Expoente de perda de percurso estimado |']);
+        disp(['| ----- | -------------------------------------- | ------------------------------ | -------------------------------------- |']);
+        disp(['|   ' num2str(vtW(i)) '   |               ' num2str(stdShad) '                   |               ' num2str(meanShad) '          |           ' num2str(coefR) '                       |']);
+    elseif i > 1 && vtW(i) > 9
+        disp(['|   ' num2str(vtW(i)) '  |               ' num2str(stdShad) '                   |               ' num2str(meanShad) '           |           ' num2str(coefR) '                       |']); 
+    else
+        disp(['|   ' num2str(vtW(i)) '   |               ' num2str(stdShad) '                   |               ' num2str(meanShad) '          |           ' num2str(coefR) '                       |']);
+    end
+end
+disp(['                                                        ']);
+disp(['                                                        ']);
+disp(['Entrega 1.3                                        ']);
+for i = 1:length(vtW)
+    
+    [stdShad, meanShad, coefR, EnvNorm] = fParameters01_02(vtW(i));
+    vtFit = fitmethis(EnvNorm,'figure','off','output','off');
+    if i == 1
+        disp(['|Janela |                Primeira melhor PDF               |       Parâmetro(s) da primeira melhor PDF        |              Segunda melhor PDF           | Parâmetro(s) da segunda melhor PDF |']);
+        disp(['| ----- | ------------------------------------------------ | ------------------------------------------------ | ----------------------------------------- | ---------------------------------- |']);
+        disp(['|   ' num2str(vtW(i)) '   |               ' vtFit(1).name '                   |               ' num2str(vtFit(1).par) '             |           ' vtFit(2).name '                       |       ' num2str(vtFit(2).par) '           |']);
+    elseif i > 1 && vtW(i) > 9
+        disp(['|   ' num2str(vtW(i)) '  |               ' vtFit(1).name '                   |               ' num2str(vtFit(1).par) '             |          ' vtFit(2).name '                  |       '   num2str(vtFit(2).par) '        |']); 
+    else
+        disp(['|   ' num2str(vtW(i)) '   |               ' vtFit(1).name '                   |               ' num2str(vtFit(1).par) '             |           ' vtFit(2).name '                       |      '   num2str(vtFit(2).par) '           |']);
+    end
+    
+end
+
