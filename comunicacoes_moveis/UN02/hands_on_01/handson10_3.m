@@ -17,13 +17,6 @@ seq16qam = 2*dataInMatrix(:,1)+dataInMatrix(:,2)+1i*(2*dataInMatrix(:,3)+dataInM
 seq16=seq16qam';
 % Garantir propriedadade da simetria
 X = [seq16 conj(seq16(end:-1:1))]; 
-%
-xt=zeros(1, T+1);
-for t=0:T
-    for k=0:N-1
-        xt(1,t+1)=xt(1,t+1)+1/sqrt(N)*X(k+1)*exp(1i*2*pi*k*t/T); 
-    end 
-end 
 
 % Construindo xn
 xn = zeros(1,N);
@@ -46,7 +39,7 @@ Eb = sum(EbArr)*(1/N^2);
 sigmas= zeros(0,length(EbN0dB));             % Vetor de variâncias do ruído
 for i = 1:length(EbN0dB)
     N0 = Eb*10^(EbN0dB(i)/10);
-    sigmas(i) = 0;
+    %sigmas(i) = N0/2;
 end
 
 signal_QAM = ifft(X);
