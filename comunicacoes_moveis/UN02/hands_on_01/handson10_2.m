@@ -19,12 +19,9 @@ seq16=seq16qam';
 X = [seq16 conj(seq16(end:-1:1))]; 
 %
 % Construindo xn
-xn = zeros(1,N);
-for n=0:N-1
-    for k=0:N-1
-        xn(n+1) = xn(n+1) + 1/sqrt(N)*X(k+1)*exp(1i*2*pi*n*k/N);
-    end
-end
+%xn = zeros(1,N);
+xn = ifft(X);
+xn = sqrt(N) * xn;
 %
 % Construindo xt
 xt=zeros(1, T+1);
