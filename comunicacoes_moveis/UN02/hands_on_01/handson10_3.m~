@@ -1,4 +1,4 @@
-clear all; clc; close all
+clear all; clc;
 % Parâmetros
 n_bits = 1000;                % Número de bits
 T = 500;                      % Tempo de símbolo OFDM
@@ -18,102 +18,101 @@ seq16=seq16qam';
 % Garantir propriedadade da simetria
 X = [seq16 conj(seq16(end:-1:1))]; 
 
-% Modulação BPSK
-
-Na = 1000;
-SM = [-1 +1];
-a = randi([0 1], 1, Na); 
-Vn = SM(a + 1);
-
-
 % Construindo xn
-xn = zeros(1,N);
-xn = ifft(X);
-xn = sqrt(N) * xn;
+ofdmsym_sp = ifft(reshape(X,length(X)/10, 10));
+xn = reshape(ofdmsym_sp,1,length(X));
 
 EbN0dB = 0:1:14;
+snrdb =  EbN0dB+10*log10(log2(16)*(50/50));
 
-EbArr = zeros(1,length(xn));
+Eb = xn*xn'/length(xn);
 
-Eb = 1;
-
-sigmas= zeros(0,length(EbN0dB));             % Vetor de variâncias do ruído
-for i = 1:length(EbN0dB)
-    N0 = Eb/10^(EbN0dB(i)/10);
+sigmas= zeros(0,length(snrdb));             % Vetor de variâncias do ruído
+for i = 1:length(snrdb)
+    N0 = Eb*(10^(-snrdb(i)/10));
     sigmas(i) = N0/2;
 end
 
-BER_BPSK = zeros(1,length(EbN0dB));
-BER_QAM = zeros(1,length(EbN0dB));
+BER_BPSK = zeros(1,length(snrdb));
+BER_QAM = zeros(1,length(snrdb));
 % Loop de variâncias
 for ik = 1:length(sigmas)
     %
     % Adição de ruído
     variance = sigmas(ik);
-    noise = sqrt(variance)*randn(1,N)+1i*sqrt(variance)*randn(1,N);
-    %
-    % sinal recebido QAM = xn + ruído 
-    rn = xn + noise;
-    
-    %sinal recebido BPSK = Cn + ruído
-    Rt = Vn + noise;
-    
-    % FFT do rn
-    Y = fft(rn);
-    Y = (1/sqrt(N))*Y(1:K);
-    
-    % Plots
-    %{
-    scatterplot(Y)
-    hold on
-    scatter(real(seq16),imag(seq16), 'r', '+')
-    hold off
-    title(['Sinal com ruído de variância ', num2str(variance)]);
-    %}
-    % Demodulação QAM
-    for k= 1:length(Y) % Para percorrer todo o vetor Yk 
-        if real(Y(1,k)) > 0 % Para parte real de Yk positiva
-            if real(Y(1,k)) > 2
-                Z(1,k) = 3;
-            else
-                Z(1,k) = 1;
+    BER_QAM_MC = zeros(1,5000);
+    for jk = 1:5000
+        %wgn = sqrt(variance) * [1 j] *  randn(2, length(xn));
+        noise = sqrt(variance)*randn(1,N)+1i*sqrt(variance)*randn(1,N);
+        %
+        % sinal recebido QAM = xn + ruído 
+        rn = xn;
+
+        % FFT do rn
+        Y = fft(reshape(rn,50,length(rn)/(50)));
+        Y = reshape(Y,1,length(X));
+        
+        % Plots
+        %{
+        scatterplot(Y)
+        hold on
+        scatter(real(seq16),imag(seq16), 'r', '+')
+        hold off
+        title(['Sinal com ruído de variância ', num2str(variance)]);
+        %}
+        
+        % Demodulação sinal recebido
+        bits_recebidos = zeros(1, length(Y));
+        for k= 1:length(Y) % Para percorrer todo o vetor Yk 
+            if real(Y(1,k)) > 0 % Para parte real de Yk positiva
+                if real(Y(1,k)) > 2
+                    bits_recebidos(1,k) = 1;
+                    bits_recebidos(1,k+1)= 1;
+                else
+                    bits_recebidos(1,k) = 1;
+                    bits_recebidos(1,k+1)= 0;
+                end
+            else % Para parte real de Yk negativa ou igual a zero
+                if real(Y(1,k)) < -2
+                     Z(1,k) = -3;
+                else
+                     Z(1,k) = -1;
+                end
             end
-        else % Para parte real de Yk negativa ou igual a zero
-            if real(Y(1,k)) < -2
-                 Z(1,k) = -3;
-            else
-                 Z(1,k) = -1;
+
+            if imag(Y(1,k)) > 0 % Para parte imaginaria de Yk positiva
+                if imag(Y(1,k)) > 2
+                    Z(1,k) = Z(1,k) + 1i*3;
+                else
+                    Z(1,k) = Z(1,k) + 1i;
+                end
+            else % Para parte imaginaria de Yk negativa ou igual a zero
+                if imag(Y(1,k)) < -2
+                     Z(1,k) = Z(1,k) - 1i*3;
+                else
+                     Z(1,k) = Z(1,k) - 1i;
+                end
             end
         end
 
-        if imag(Y(1,k)) > 0 % Para parte imaginaria de Yk positiva
-            if imag(Y(1,k)) > 2
-                Z(1,k) = Z(1,k) + 1i*3;
-            else
-                Z(1,k) = Z(1,k) + 1i;
-            end
-        else % Para parte imaginaria de Yk negativa ou igual a zero
-            if imag(Y(1,k)) < -2
-                 Z(1,k) = Z(1,k) - 1i*3;
-            else
-                 Z(1,k) = Z(1,k) - 1i;
-            end
-        end
-    end
-    
-    % Contagem de erro
-    error = length(find(Z(1,2:K)-X(1,2:K)));
-    BER_QAM(ik) = error/length(X); %BER simulado
+        % Contagem de erro
+        
+        error = length(find(Z(1,2:K)-X(1,2:K)));
+        BER_QAM_MC(jk) = error/length(X);
+    end 
+    BER_QAM(ik) = mean(BER_QAM_MC); %BER QAM simulado
     disp(['Para variância de ', num2str(variance), ' houve ', num2str(error), ' símbolos errados.']);
 end
 
 %BER Teórico
-symErrTheory = zeros(0,length(EbN0dB));
-for i = 1:length(EbN0dB)
-    N0 = Eb*10^(EbN0dB(i)/10);
-    symErrTheory(i) = 2*(1-1/sqrt(16))*erfc(sqrt(3/2*log2(16)*10^(EbN0dB(i)/10)/(16-1)));
+symErrTheory = zeros(0,length(snrdb));
+for i = 1:length(snrdb)
+    symErrTheory(i) = (4/log2(16))*(1-1/sqrt(16))*erfc(sqrt(3*(4/log2(16))*((10^(snrdb(i)/10))/(16-1))));
 end
 
+symErrTheory = ber_QAM(EbN0dB,16,'a');
+
+figure;
 semilogy(EbN0dB,symErrTheory,'r-');
 hold on;
 semilogy(EbN0dB,BER_QAM,'b-');
