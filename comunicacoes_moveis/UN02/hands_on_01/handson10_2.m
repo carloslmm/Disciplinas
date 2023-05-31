@@ -20,8 +20,9 @@ X = [seq16 conj(seq16(end:-1:1))];
 %
 % Construindo xn
 %xn = zeros(1,N);
-xn = ifft(X, N);
-xn = sqrt(N)*xn
+ofdmsym_sp = ifft(reshape(X,length(X)/K, K));
+xn = reshape(ofdmsym_sp,1,length(X));
+%xn = ifft(X);
 %xn = (sqrt(N))*xn;
 %
 % Construindo xt

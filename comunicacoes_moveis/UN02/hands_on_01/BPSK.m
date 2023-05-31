@@ -28,8 +28,7 @@ for ik = 1:length(sigmas)
     rt = vtvntime + noise;
     Rtfreq = fft(rt);
     %BER teórico
-    BER_TEO(ik) = 0.5*erfc(sqrt(10^(EbN0dB(ik)/10)));
-    
+    BER_TEO(ik) = 0.5*erfc(sqrt(10^(EbN0dB(ik)/10)));   
 end
 
 semilogy(EbN0dB,BER_TEO,'r-');

@@ -107,7 +107,7 @@ end
 %BER Teórico
 symErrTheory = zeros(0,length(snrdb));
 for i = 1:length(snrdb)
-    symErrTheory(i) = (4/log2(16))*(1-1/sqrt(16))*erfc(sqrt(3*(4/log2(16))*((10^(snrdb(i)/10))/(16-1))));
+    %symErrTheory(i) = (4/log2(16))*(1-1/sqrt(16))*erfc(sqrt(3*(4/log2(16))*((10^(snrdb(i)/10))/(16-1))));
 end
 
 symErrTheory = ber_QAM(EbN0dB,16,'a');
