@@ -229,17 +229,19 @@ for ik = 1:length(EbN0dB)
     BER_QAM_MC_S_OFDM(ik) = mean(BER_QAM_S_OFDM);
 end 
 
+
 %BER teórico
 %MIMO-OFDM Wireless Communications with MATLAB��   Yong Soo Cho, Jaekwon Kim, Won Young Yang and Chung G. Kang
 %2010 John Wiley & Sons (Asia) Pte Ltd
 
+%{
 N = length(EbN0dB);  
 sqM= sqrt(16); 
 
 a= 2*(1-power(sqM,-1))/log2(sqM);  
 b= 6*log2(sqM)/(16-1);
 BER_TEO = a*Q(sqrt(b*10.^(EbN0dB/10)));
-
+%}
 figure;
 semilogy(EbN0dB, BER_TEO, 'r-', 'LineWidth', 2); % Curva teórica em vermelho com linha mais espessa
 hold on;
