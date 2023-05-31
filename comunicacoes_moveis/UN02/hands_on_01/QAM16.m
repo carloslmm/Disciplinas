@@ -16,7 +16,7 @@ for ik = 1:length(EbN0dB)
         seq16qam = 2*dataInMatrix(:,1)+dataInMatrix(:,2)+1i*(2*dataInMatrix(:,3)+dataInMatrix(:,4)); 
         seq16=seq16qam';
         % Garantir propriedadade da simetria
-        X = [seq16 conj(seq16(end:-1:1))]; 
+        X = seq16; 
 
         bits_transmitidos = zeros(1, length(X));
         index = 1;
@@ -159,6 +159,11 @@ for ik = 1:length(EbN0dB)
         clear bits_errors; 
         
         % Demodulação sinal recebido sem OFDM
+        Eb = X*X'/length(X);
+        N0 = Eb*(10^(-SnrdB(ik)/10));
+        variance = N0/2;
+        noise = sqrt(variance)*randn(1,N)+1i*sqrt(variance)*randn(1,N);
+        
         Y = X + noise;
         bits_recebidos = zeros(1, length(Y));
         index = 1;
@@ -217,25 +222,32 @@ for ik = 1:length(EbN0dB)
             end
         end
         bits_errors = sum(bits_transmitidos ~= bits_recebidos);
-        BER_QAM(jk) = bits_errors / length(bits_transmitidos);
+        BER_QAM_S_OFDM(jk) = bits_errors / length(bits_transmitidos);
         clear bits_errors; 
     end
     BER_QAM_MC_OFDM(ik) = mean(BER_QAM_OFDM);
-    BER_QAM_MC(ik) = mean(BER_QAM);
-end
-    
-
+    BER_QAM_MC_S_OFDM(ik) = mean(BER_QAM_S_OFDM);
+end 
 
 %BER teórico
+%MIMO-OFDM Wireless Communications with MATLAB��   Yong Soo Cho, Jaekwon Kim, Won Young Yang and Chung G. Kang
+%2010 John Wiley & Sons (Asia) Pte Ltd
+N = length(EbN0dB);  
+sqM= sqrt(16); 
 
-BER_TEO = ber_QAM(EbN0dB,16,'a');
+a= 2*(1-power(sqM,-1))/log2(sqM);  
+b= 6*log2(sqM)/(16-1);
+BER_TEO = a*Q(sqrt(b*10.^(EbN0dB/10)));
 
 figure;
-semilogy(EbN0dB,BER_TEO,'r-');
+semilogy(EbN0dB, BER_TEO, 'r-', 'LineWidth', 2); % Curva teórica em vermelho com linha mais espessa
 hold on;
-semilogy(EbN0dB,BER_QAM_MC_OFDM,'b-');
-semilogy(EbN0dB,BER_QAM_MC,'g-');
+semilogy(EbN0dB, BER_QAM_MC_OFDM, 'b-', 'LineWidth', 1.5); % Curva experimental OFDM QAM em azul com linha de espessura média
+semilogy(EbN0dB, BER_QAM_MC_S_OFDM, 'k^', 'MarkerSize', 8); % Pontos experimentais QAM em preto com triângulos de tamanho 8
+
+xlabel('Eb/N0 (dB)');
+ylabel('Taxa de Erro de Bit (BER)');
+title('Comparação da BER teórica e experimental');
+legend('Teórico', 'Experimental OFDM-QAM', 'Experimental QAM', 'Location', 'best');
+grid on;
 axis([0 14.2 .99e-5 1])
-legend('16QAM-BER Teórico','16QAM-BER SImulado com OFDM','16QAM-BER sem OFDM');
-xlabel('Eb/N0(dB)');
-ylabel('Bit Error Rate(BER)');
